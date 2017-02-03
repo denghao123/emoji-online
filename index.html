@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-<meta name="keywords" content="qq表情在线,表情在线生成,表情在线制作">
+<meta name="keywords" content="表情DIY,qq表情在线,表情在线生成,表情在线制作">
 <meta name='author' content="denghao.me">
-<title>qq微信表情在线制作生成器</title>
-
+<title>表情DIY</title>
 <style>
 /*public*/
 *{
     padding: 0;
+    margin: 0;
     margin: 0;
 }
 body{
@@ -212,6 +212,7 @@ a{
     background-color:#f5f5f5; 
 }
 .img-list li{
+    position: relative;
     float: left;
     width: 120px;
     height: 120px;
@@ -226,6 +227,16 @@ a{
 .img-list li img{
     width: 100%;
 }
+.img-list li i{
+    position: absolute;
+    width: 100%;
+    bottom: 2px;
+    left:0;
+    text-align: center;
+    color: #333;
+    overflow: hidden;
+    font-size: 12px;
+}
 </style>
 </head>
 <body>
@@ -236,7 +247,7 @@ a{
             <span id="txt" contenteditable='true'>你是不是傻！</span>
         </div>
         <div class="mask-upload">+</div>
-        <img id="bgImg" src='assets/image/emoji/1.jpg' width="100%">
+        <img id="bgImg" src='assets/image/emoji/jgz/1.jpg' width="100%">
         <input id="upload_image" class='upload-image' type="file" name="image" accept="image/*"/>
     </div>
     <!-- 生成结果 -->
@@ -247,6 +258,7 @@ a{
         <ul>
             <li>- 修改文字内容/样式/位置</li>
             <li>- 上传/替换图片。（IE浏览器不支持上传）</li>
+            <li>- 收藏本页面，方便下次使用！</li>
         </ul>
     </div>
     <!-- 编辑 -->
@@ -290,16 +302,11 @@ a{
     <div class="chose">
         <h3>替换图片（单击）：</h3>
         <ul id="imgList" class="img-list">
-            <li><img src="assets/image/emoji/1.jpg"></li>
-            <li><img src="assets/image/emoji/2.jpg"></li>
-            <li><img src="assets/image/emoji/3.jpg"></li>
-            <li><img src="assets/image/emoji/4.jpg"></li>
-            <li><img src="assets/image/emoji/5.jpg"></li>
-            <li><img src="assets/image/emoji/6.jpg"></li>
+            <!-- <li><img src="assets/image/emoji/jgz/1.jpg" title='你是不是傻！'><i>你是不是傻!</i></li> -->
         </ul>
     </div>
 </div>
-<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/jquery/1.9.1/jquery.min.js"></script>
 <script src="assets/js/drag.min.js"></script>
 <script src="http://cdn.bootcss.com/html2canvas/0.4.1/html2canvas.js"></script> 
 <script>
@@ -407,10 +414,34 @@ $(function() {
      * 更换素材图片
      */
     imgList.on('click', 'img', function(event) {
-        var src = $(this).attr('src');
+        var src = $(this).attr('src'),title=$(this).attr('title');
         isUpload=false;
-        bgImg.attr('src', src);
+        bgImg.attr('src',src);
+        txt.text(title);
     })
+
+    /*
+     * 加载素材
+     */
+    $.ajax({
+        type: "get",
+        url: 'assets/data/data.json',
+        data: {},
+        success: function(data) {
+            if (data) {
+                var list = data.list,
+                    html = '';
+                list.forEach(function(val, index) {
+                    html += "<li><img src='assets/image/emoji/"+val.url+"' title='"+val.title+"'><i>"+val.title+"</i></li>"
+                })
+                imgList.append(html);
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            alert(errorThrown);
+        }
+    })
+
 
 })
 </script> 
