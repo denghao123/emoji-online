@@ -35,6 +35,12 @@ a{
 .pr0{
     padding-right: 0!important;
 }
+.mt10{
+    margin-top: 10px;
+}
+.mt20{
+    margin-top: 20px;
+}
 /*colors*/
 .bg-white{
     background-color:white; 
@@ -70,14 +76,14 @@ a{
 .wrap{
     position: relative;
     width: 200px;
-    min-height: 160px;
+    min-height: 220px;
     background-color:white; 
     overflow:hidden;
 }
 .wrap .txtbox{
     position: absolute;
-    bottom:10px;
-    left:30px;
+    bottom:20px;
+    left:20px;
     color: black;
     font-size: 20px;
     z-index: 2;
@@ -100,12 +106,43 @@ a{
     box-shadow:0 0 10px rgba(0, 0, 0, .5);  
 }
 
+.wrap:hover .mask-upload{
+    display: -webkit-flex;
+    display: flex;
+    pointer-events: none;
+    cursor: pointer;
+}
+
 .wrap .txtbox .btn-drag{
     display: block;
     width: 20px;
     height: 20px;
     cursor: move;
     background:none;
+}
+.wrap .bg-img{
+    z-index: 1;
+    pointer-events:none;
+}
+
+.wrap .upload-image{
+    position: absolute;
+    background: transparent;
+    z-index: -1;
+}
+.wrap .mask-upload{
+    position: absolute;
+    background-color:rgba(0,0,0,0.1);
+    width: 100%;
+    height: 100%;
+    display: none;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-align-items: center;
+    align-items: center;
+    font-size: 50px;
+    color: #fff;
+    font-weight: bold;
 }
 
 .tips{
@@ -203,16 +240,18 @@ a{
             <i id='btnDrag' class="btn-drag"></i>
             <span id="txt" contenteditable='true'>你是不是傻！</span>
         </div>
+        <div class="mask-upload">+</div>
         <img id="bgImg" src='assets/image/emoji/1.jpg' width="100%">
+        <input id="upload_image" class='upload-image' type="file" name="image" accept="image/*" />
     </div>
     <!-- 生成结果 -->
     <div id="result" class="result"><img src="assets/image/no.jpg"></div>
     <div class='tips'>
-        操作步骤：
+        <div>使用方法：点击“生成表情”，右键另存为图片，搞定！</div>
+        <div class='mt20'>此外您可以：</div>
         <ul>
-            <li>1. 移入左图编辑文字;</li>
-            <li>2. 点击下面的素材更换图片;</li>
-            <li>3. 点击'生成表情'，右键另存为，搞定！</li>
+            <li>- 修改文字内容/样式/位置</li>
+            <li>- 替换图片</li>
         </ul>
     </div>
     <!-- 编辑 -->
@@ -315,6 +354,21 @@ $(function() {
         txt.css('-webkit-transform', 'rotate(' + angle + 'deg)');
     })
 
+    // 更换背景图
+    $('#upload_image').change(function(event) {
+        var files = event.target.files, file;       
+        if (files && files.length > 0) {
+            file = files[0];
+            // if(file.size > 1024 * 1024 * 5) {
+            //     alert('图片大小不能超过 5MB!');
+            //     return false;
+            // }
+            var URL = window.URL || window.webkitURL;
+            var imgURL = URL.createObjectURL(file);
+            bgImg.attr('src', imgURL);
+        }
+    })
+
     /*
      * 生成图片
      */
@@ -336,7 +390,14 @@ $(function() {
     })
 
     /*
-     * 更换图片
+     * 上传本地图片
+     */
+    bgImg.on('click', function(event) {
+        $("#upload_image").click();
+    });
+
+    /*
+     * 更换素材图片
      */
     imgList.on('click', 'img', function(event) {
         var src = $(this).attr('src');
