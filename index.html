@@ -1,8 +1,3 @@
-<?php
-// $img_file = 'assets/image/emoji/1.jpg';
-// $img_info = getimagesize($img_file);
-// $img_src = "data:{$img_info['mime']};base64," . base64_encode(file_get_contents($img_file));
-?>
 <!DOCTYPE html>
 <html>  
 <head>  
@@ -91,7 +86,7 @@ a{
     background: none;
     font-family: 'KaiTi';
 }
-.wrap .txtbox:hover .btn-drag{
+.wrap:hover .txtbox .btn-drag{
     background:url(assets/image/move.png) no-repeat center;
     background-size:100%; 
 }
@@ -242,7 +237,7 @@ a{
         </div>
         <div class="mask-upload">+</div>
         <img id="bgImg" src='assets/image/emoji/1.jpg' width="100%">
-        <input id="upload_image" class='upload-image' type="file" name="image" accept="image/*" />
+        <input id="upload_image" class='upload-image' type="file" name="image" accept="image/*"/>
     </div>
     <!-- 生成结果 -->
     <div id="result" class="result"><img src="assets/image/no.jpg"></div>
@@ -251,7 +246,7 @@ a{
         <div class='mt20'>此外您可以：</div>
         <ul>
             <li>- 修改文字内容/样式/位置</li>
-            <li>- 替换图片</li>
+            <li>- 上传/替换图片。（IE浏览器不支持上传）</li>
         </ul>
     </div>
     <!-- 编辑 -->
@@ -293,7 +288,7 @@ a{
     </ul>
     <!-- 素材 -->
     <div class="chose">
-        <h3>素材：(点击选中)</h3>
+        <h3>替换图片（单击）：</h3>
         <ul id="imgList" class="img-list">
             <li><img src="assets/image/emoji/1.jpg"></li>
             <li><img src="assets/image/emoji/2.jpg"></li>
@@ -317,7 +312,9 @@ $(function() {
         controls = $(".controls"),
         btnTurn = $(".btn-turn"),
         imgList = $("#imgList"),
-        angle = 0;
+        angle = 0,
+        isIE = document.all ? true : false,
+        isUpload=false;
 
     /*
      * 拖拽
@@ -355,17 +352,27 @@ $(function() {
     })
 
     // 更换背景图
-    $('#upload_image').change(function(event) {
-        var files = event.target.files, file;       
-        if (files && files.length > 0) {
-            file = files[0];
-            // if(file.size > 1024 * 1024 * 5) {
-            //     alert('图片大小不能超过 5MB!');
-            //     return false;
-            // }
-            var URL = window.URL || window.webkitURL;
-            var imgURL = URL.createObjectURL(file);
-            bgImg.attr('src', imgURL);
+    $("#upload_image").on('change', function(event) {
+        var pic = document.getElementById("bgImg");
+        var file = document.getElementById("upload_image");
+        if (window.FileReader) { //chrome,firefox7+,opera,IE10+
+            oFReader = new FileReader();
+            oFReader.readAsDataURL(file.files[0]);
+            oFReader.onload = function(oFREvent) {
+                pic.src = oFREvent.target.result;
+            };
+        } else if (isIE) {
+            isUpload=true;
+            file.select();
+            file.blur();
+            var reallocalpath = document.selection.createRange().text;
+            pic.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='scale',src=\"" + reallocalpath + "\")";
+            pic.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+        } else if (file.files) { //firefox6-
+            if (file.files.item(0)) {
+                url = file.files.item(0).getAsDataURL();
+                pic.src = url;
+            }
         }
     })
 
@@ -382,7 +389,7 @@ $(function() {
                 canvas.id = "mycanvas";
                 var dataUrl = canvas.toDataURL("image/jpeg");
                 var newImg = document.createElement("img");
-                newImg.src = dataUrl;
+                newImg.src = (isIE&&isUpload)?'assets/image/emoji/not-support.jpg':dataUrl;
                 result.innerHTML = '';
                 result.appendChild(newImg);
             }
@@ -390,7 +397,7 @@ $(function() {
     })
 
     /*
-     * 上传本地图片
+     * 上传本地图片(不支持ie)
      */
     bgImg.on('click', function(event) {
         $("#upload_image").click();
@@ -401,6 +408,7 @@ $(function() {
      */
     imgList.on('click', 'img', function(event) {
         var src = $(this).attr('src');
+        isUpload=false;
         bgImg.attr('src', src);
     })
 
