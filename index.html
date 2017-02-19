@@ -214,8 +214,8 @@ a{
 .img-list li{
     position: relative;
     float: left;
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     overflow: hidden;
     border:1px solid #e8e8e8;
     margin: 4px;
@@ -235,7 +235,7 @@ a{
     text-align: center;
     color: #333;
     overflow: hidden;
-    font-size: 12px;
+    font-size: 11px;
 }
 </style>
 </head>
@@ -438,7 +438,8 @@ $(function() {
             }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-            alert(errorThrown);
+            console.log(errorThrown);
+            imgList.append("<p>数据加载失败了哦~~</p>")
         }
     })
 
